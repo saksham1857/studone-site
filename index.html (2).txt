@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudOne - Physics Wallah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .top-banner {
+      width: 100%;
+      background: rgba(200, 200, 200, 0.08);
+      backdrop-filter: blur(10px);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+    .top-banner .left-controls { display: flex; gap: 10px; }
+    .logo {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+    .top-banner button {
+      background: #ffffff10;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #999;
+      transition: 0.3s;
+    }
+    .top-banner button:hover { background: #ffffff25; }
+    .title {
+      margin: 90px 0 0;
+      font-size: 2.5rem;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    .udaan-box {
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      margin-top: 5px;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    }
+    .video-container {
+      width: 90%;
+      max-width: 960px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #333;
+      background-color: #111;
+      box-shadow: 0 0 20px rgba(255,255,255,0.07), 0 0 40px rgba(255,255,255,0.03);
+      position: relative;
+    }
+    .iframe-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+    .iframe-wrapper iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: none;
+    }
+    .status-bar {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 1rem;
+    }
+    .status-bar span {
+      padding: 8px 16px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .rating-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: #222;
+      border: 1px solid #555;
+      padding: 15px;
+      border-radius: 8px;
+      position: absolute;
+      right: 20px;
+      top: 50px;
+      z-index: 10;
+    }
+    .stars {
+      display: flex;
+      gap: 8px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .star { color: grey; transition: 0.2s; }
+    .star:hover, .star.selected { color: gold; }
+    .note-panel {
+      position: fixed;
+      top: 60px;
+      right: -320px;
+      width: 300px;
+      height: 80%;
+      background: #121212;
+      color: white;
+      border-left: 1px solid #333;
+      padding: 15px;
+      box-shadow: -4px 0 10px rgba(0,0,0,0.5);
+      transition: right 0.4s ease;
+      z-index: 20;
+      border-radius: 10px 0 0 10px;
+    }
+    .note-panel h2 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    .note-panel textarea {
+      width: 100%;
+      height: calc(100% - 130px);
+      background: #1e1e1e;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      resize: none;
+      font-family: monospace;
+      border-radius: 6px;
+    }
+    .note-panel .note-list {
+      margin-bottom: 10px;
+    }
+    .note-panel.open { right: 0; }
+    .save-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px;
+      background: #5c67f2;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-banner">
+    <div class="logo">StudOne</div>
+    <div class="left-controls">
+      <button onclick="toggleNotes()">📝 Notes</button>
+      <button onclick="toggleRatingBox()">Rate This</button>
+    </div>
+    <div class="rating-box" id="ratingBox">
+      <p>Give your rating:</p>
+      <div class="stars">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <button class="save-btn" onclick="submitRating()">Submit</button>
+    </div>
+  </div>
+
+  <div class="note-panel" id="notePanel">
+    <h2>Notes</h2>
+    <div class="note-list" id="noteList"></div>
+    <textarea id="noteText" placeholder="Write your markdown notes here..."></textarea>
+    <button class="save-btn" onclick="saveNotes()">Save Note</button>
+    <button class="save-btn" onclick="startDictation()">🎤 Voice Note</button>
+  </div>
+
+  <h1 class="title">PHYSICS WALLAH</h1>
+  <div class="udaan-box">Udaan 2026</div>
+
+  <div class="video-container">
+    <div class="iframe-wrapper">
+      <iframe allow="autoplay" allowfullscreen src="https://anym3u8player.com/ultimate-player-generator/player.php?player=hlsjs&url=https%3A%2F%2Fdga9kme080o0w.cloudfront.net%2Fout%2Fv1%2F90ab1354cfcd4c5b83cf78a87d96041e%2Findex_3.m3u8&autoplay=1&controls=auto&theme=default"></iframe>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span style="color: white;">🟢 Live</span>
+    <span style="color: #ffc107;">💬 Chat Coming Soon</span>
+  </div>
+
+  <script>
+    let rating = 0;
+    document.querySelectorAll('.star').forEach((star, index) => {
+      star.addEventListener('click', () => {
+        rating = index + 1;
+        document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('selected', i < rating));
+      });
+    });
+
+    function toggleRatingBox() {
+      const box = document.getElementById('ratingBox');
+      box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function submitRating() {
+      if (rating > 0) {
+        alert(`Thanks for rating us ${rating} star${rating > 1 ? 's' : ''}!`);
+        document.getElementById('ratingBox').style.display = 'none';
+      } else {
+        alert('Please select a rating before submitting.');
+      }
+    }
+
+    function toggleNotes() {
+      const panel = document.getElementById('notePanel');
+      panel.classList.toggle('open');
+      updateNoteList();
+    }
+
+    function saveNotes() {
+      const note = document.getElementById('noteText').value;
+      if (!note) return;
+      const notes = JSON.parse(localStorage.getItem('multiNotes') || '[]');
+      notes.push({ text: note, time: new Date().toLocaleString() });
+      localStorage.setItem('multiNotes', JSON.stringify(notes));
+      document.getElementById('noteText').value = '';
+      updateNoteList();
+      alert('Note saved successfully!');
+      document.getElementById('notePanel').classList.remove('open');
+    }
+
+    function updateNoteList() {
+      const noteList = document.getElementById('noteList');
+      noteList.innerHTML = '';
+      const notes = JSON.parse(localStorage.getItem('multiNotes') || '[]');
+      notes.forEach((n, i) => {
+        const item = document.createElement('div');
+        item.innerText = `${n.time}: ${n.text.substring(0, 50)}...`;
+        item.style.padding = '5px';
+        item.style.marginBottom = '4px';
+        item.style.background = '#1e1e1e';
+        item.style.borderRadius = '4px';
+        noteList.appendChild(item);
+      });
+    }
+
+    function startDictation() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Voice recognition not supported in this browser.');
+        return;
+      }
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('noteText').value += transcript + " ";
+      };
+      recognition.onerror = function(event) {
+        alert('Error occurred in recognition: ' + event.error);
+      };
+      recognition.start();
+    }
+  </script>
+</body>
+</html>
